@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+
 <head>
   <meta charset="utf-8" />
   <meta name="format-detection" content="telephone=no" />
@@ -40,8 +40,8 @@
       var amtToday = counter.soFarToday(),
           amtYesterday = counter.yesterday();
 
-      today.innerText = amtToday;
-      yesterday.innerText = amtYesterday;
+      today.text(amtToday);
+      yesterday.text(amtYesterday);
 
       if (amtToday < amtYesterday) {
         $('#today-container').addClass('green');          
