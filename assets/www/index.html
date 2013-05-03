@@ -15,19 +15,17 @@
 
   <div id="info-row" class="ui-grid-a">
     <div class="ui-block-a"><div id="today-container" class="info-slug"><div id="today"></div><p>Today<br />&nbsp;</p></div></div>
-    <div class="ui-block-b"><div class="info-slug"><div id="yesterday"></div><p>This Time<br />Yesterday</p></div></div>
+    <div class="ui-block-b"><div id="yesterday-container"><div class="info-slug"><div id="yesterday"></div><p>This Time<br />Yesterday</p></div></div></div>
   </div>
 
   <script type="text/javascript" src="js/app.js"></script>
 
   <script type="text/javascript">
-    var counter = App.Counter(),
-        today = $('#today');
-        yesterday = $('#yesterday');
+    var counter = App.counter();  
 
     function hadOne() {
       counter.hadOne();
-      updateUI();
+      App.updateUI(counter);
       return false;
     }
 
@@ -36,29 +34,9 @@
       return false;
     }
 
-    function updateUI() {
-      var amtToday = counter.soFarToday(),
-          amtYesterday = counter.yesterday();
-
-      today.text(amtToday);
-      yesterday.text(amtYesterday);
-
-      if (amtToday < amtYesterday) {
-        $('#today-container').addClass('green');          
-      } else if ( today == yesterday ) {
-      
-      } else {
-        $('#today-container').removeClass('green');          
-        $('#today-container').addClass('red');          
-      }
-    } 
-
-    window.onload = function() {
-      updateUI();
-    };  
-
     $(function() {
       $('#had-one').click(hadOne); 
+      App.updateUI(counter);
     });
   </script>
 </body>
