@@ -19,16 +19,18 @@ App.yesterdayAtThisTime = function() {
 };
 
 App.LogData = function() {
-  var logData;
-  if (localStorage["logData"]) {
-    return JSON.parse(localStorage["logData"]);
-  } else {
-    var today = App.today();
+  var logData, logdata, today = App.today();
 
-    var ret = { log: {} };
-    ret.log[today] = [];
-    return ret;
+  if (localStorage["logData"]) {
+    logdata = JSON.parse(localStorage["logData"]);
+  } else {
+    logdata = { log: {} };
   }
+
+  if (typeof logdata.log[today] === 'undefined') {
+    logdata.log[today] = []
+  }
+  return logdata;
 };
 
 App.Log = function(logData) {
