@@ -33,7 +33,25 @@ describe('App', function() {
 
       logdata.log[App.yesterday()] = [nowYesterday];
       
-      expect(log.yesterday()).toEqual(1);
+      expect(log.nowYesterday()).toEqual(1);
+    });
+
+    it('knows how yesterday compares to the day before', function() {
+      var now = new Date();
+      var yesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 1);
+      var dayBefore = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 2);
+      yesterday = yesterday.getTime();
+      dayBefore = dayBefore.getTime();
+
+      logdata.log[yesterday] = [yesterday, yesterday, yesterday];
+      logdata.log[dayBefore] = [dayBefore, dayBefore];
+
+      expect(log.yesterday()).toBeGreaterThan(log.dayBeforeYesterday()); 
+
+      logdata.log[dayBefore].push(dayBefore);
+      logdata.log[dayBefore].push(dayBefore);
+       
+      expect(log.yesterday()).toBeLessThan(log.dayBeforeYesterday()); 
     });
 
     it('is persisted when incremented',function() {

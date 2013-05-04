@@ -26,15 +26,12 @@
     function hadOne() {
       counter.hadOne();
       App.updateUI(counter);
-      return false;
-    }
-
-    function howMany() {
-      alert(counter.soFarToday());
-      return false;
     }
 
     $(function() {
+      App.todayEl = $('#today')[0];
+      App.yesterdayEl = $('#yesterday')[0];
+
       $('#had-one').click(hadOne); 
       App.updateUI(counter);
     });

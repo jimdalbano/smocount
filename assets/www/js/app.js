@@ -48,7 +48,7 @@ var App = {
         return logData.log[today].length || 0;
       },
 
-      yesterday: function() {
+      nowYesterday: function() {
         var yesterday = App.yesterday(), 
             yesterdayAtThisTime = App.yesterdayAtThisTime();
         var yesterdaySmokes = logData.log[yesterday];
@@ -58,6 +58,23 @@ var App = {
         } else {
           return 0;
         }
+      },
+
+      yesterday: function() {
+        var yesterday = App.yesterday();
+        var yesterdaySmokes = logData.log[yesterday];
+
+        return ( (yesterdaySmokes) ? yesterdaySmokes.length : 0);
+      },
+
+      dayBeforeYesterday: function() {
+        var now = new Date();
+        var dayBeforeYesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 2);
+        dayBeforeYesterday = dayBeforeYesterday.getTime();
+        
+        var dayBeforeYesterdaySmokes = logData.log[dayBeforeYesterday];
+
+        return ( (dayBeforeYesterdaySmokes) ? dayBeforeYesterdaySmokes.length : 0);
       }
     }
   },
@@ -66,17 +83,21 @@ var App = {
     return this.log(this.logData());  
   },
 
+  todayEl: null,
+  yesterdayEl: null,
+
   updateUI : function(counter) {
     var amtToday, amtYesterday, today, yesterday;
-
-    today = $('#today')[0];
-    yesterday = $('#yesterday')[0];
 
     amtToday = ( (counter) ? counter.soFarToday() : 0 );
     amtYesterday = ( (counter) ? counter.yesterday() : 0); 
 
-    today.innerHTML = amtToday;
-    yesterday.innerHTML = amtYesterday;
+    if (this.todayEl) {
+      this.todayEl.innerHTML = amtToday;
+    }
+    if (this.yesterdayEl) {
+      this.yesterdayEl.innerHTML = amtYesterday;
+    }
 
     if (amtToday == 0 || amtToday <= amtYesterday) {
       $('#today-container').addClass('green');          
@@ -84,5 +105,15 @@ var App = {
       $('#today-container').removeClass('green');          
       $('#today-container').addClass('red');          
     }
+
+
+    if (counter.yesterday() == 0 || counter.yesterday() <= counter.dayBeforeYesterday()) {
+      $('#yesterday-container').addClass('green'); 
+    } else {
+      $('#yesterday-container').removeClass('green');          
+      $('#yesterday-container').addClass('red');          
+    }
+
+    
   } 
 };
