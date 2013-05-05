@@ -1,82 +1,69 @@
 var App = {
-  today : function() {
-    var now = new Date();
-    var today =  new Date(now.getYear(), now.getMonth() + 1, now.getDate());
-    return today.getTime();
-  },
-
-  yesterday : function() {
-    var now = new Date();
-    var yesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 1);
-    return yesterday.getTime();
-  },
-
-  yesterdayAtThisTime : function() {
-    var now = new Date();
-    var yesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 1, now.getHours(), now.getMinutes(), now.getSeconds());
-    return yesterday.getTime(); 
-  },
 
   logData : function() {
-    var logData, logdata, today = App.today();
+    var logdata, today = Times.today();
 
     if (localStorage["logData"]) {
       logdata = JSON.parse(localStorage["logData"]);
     } else {
-      logdata = { log: {} };
+      logdata = {smokes: []};
     }
-
-    if (typeof logdata.log[today] === 'undefined') {
-      logdata.log[today] = []
-    }
+    
     return logdata;
   },
 
   log : function(logData) {
-    return {
-      hadOne: function() {
-        var today = App.today();
-        var now = new Date();
-        now = now.getTime();
+    var smokes = logData.smokes;
 
-        logData.log[today].push(now);
-        localStorage["logData"] = JSON.stringify(logData);
+    var methods = {
+      hadOne: function() {
+        this.push(App.Smoke.create({ts: moment().unix()}));
+        localStorage["logData"] = JSON.stringify({smokes: smokes});
       },
 
       soFarToday: function() { 
-        var today = App.today();
-        return logData.log[today].length || 0;
+        var today = Times.todayX();
+        return this.filter(function(item) { return (item.ts > today); }).length || 0;
       },
 
       nowYesterday: function() {
-        var yesterday = App.yesterday(), 
-            yesterdayAtThisTime = App.yesterdayAtThisTime();
-        var yesterdaySmokes = logData.log[yesterday];
+        var yesterday = Times.yesterdayX(), 
+            yesterdayAtThisTime = Times.yesterdayAtThisTimeX();
         
-        if (yesterdaySmokes) {
-          return yesterdaySmokes.filter(function(time) { return (time < yesterdayAtThisTime); }).length;
-        } else {
-          return 0;
-        }
+        var countIt = function(item) {
+          return (item.ts >= yesterday && item.ts <= yesterdayAtThisTime);
+        };
+        return this.filter(countIt).length;
       },
 
       yesterday: function() {
-        var yesterday = App.yesterday();
-        var yesterdaySmokes = logData.log[yesterday];
+        var yesterday = Times.yesterdayX()
+        var today = Times.todayX();
 
-        return ( (yesterdaySmokes) ? yesterdaySmokes.length : 0);
+        var countIt = function(item) {
+          return (item.ts >= yesterday && item.ts < today);
+        };
+        return this.filter(countIt).length;
       },
 
       dayBeforeYesterday: function() {
-        var now = new Date();
-        var dayBeforeYesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 2);
-        dayBeforeYesterday = dayBeforeYesterday.getTime();
-        
-        var dayBeforeYesterdaySmokes = logData.log[dayBeforeYesterday];
+        var dayBeforeYesterday = Times.dayBeforeX(Times.yesterday()),
+            yesterday = Times.yesterdayX();
 
-        return ( (dayBeforeYesterdaySmokes) ? dayBeforeYesterdaySmokes.length : 0);
+        var countIt = function(item) {
+          return (item.ts >= dayBeforeYesterday && item.ts < yesterday);
+        };
+        return this.filter(countIt).length;
       }
+    };
+
+    for(var prop in methods) {
+      if (methods.hasOwnProperty(prop)) {
+        smokes[prop] = methods[prop]; 
+      } 
     }
+
+    return smokes;
   },
 
   counter : function() {
@@ -113,7 +100,5 @@ var App = {
       $('#yesterday-container').removeClass('green');          
       $('#yesterday-container').addClass('red');          
     }
-
-    
   } 
 };

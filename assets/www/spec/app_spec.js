@@ -1,14 +1,15 @@
 describe('App', function() {
-  describe('LogData', function() {
-    beforeEach(function() {
-      localStorage.removeItem("logData");
-    });
+  //describe('LogData', function() {
+    //beforeEach(function() {
+      //localStorage.removeItem("logData");
+    //});
 
-    it('provides an array for today', function() {
-      var today = App.today();
-      expect(App.logData().log[today]).toEqual([]);
-    }); 
-  });
+    //it('provides an array for today', function() {
+      //var today = Times.today();
+      //expect(App.logData().log[today]).toEqual([]);
+    //}); 
+
+  //});
 
   describe('Log',function() {
     var logdata, log;
@@ -16,53 +17,59 @@ describe('App', function() {
     beforeEach(function() {
       localStorage.removeItem("logData");
       logdata = App.logData(); 
-      log = App.log(logdata);
+      smokes = App.log(logdata);
     });
 
     it('increments the count for today', function() {
-      var beforeInc = log.soFarToday();
+      var beforeInc = logdata.smokes.length || 0;
       var afterInc = beforeInc + 1;
 
-      log.hadOne();
-      expect(log.soFarToday()).toEqual(afterInc);
+      smokes.hadOne();
+      expect(logdata.smokes.length).toEqual(afterInc);
     });
 
-    it('knows how many happened yesterday', function() {
-      var now = new Date();
-      var nowYesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 1);
+    it('knows how many happened by this time yesterday', function() {
+      // What time is it?
+      var yesterdayPlusAMin = Times.yesterday().add('minutes', 1).unix();
 
-      logdata.log[App.yesterday()] = [nowYesterday];
-      
-      expect(log.nowYesterday()).toEqual(1);
+      logdata.smokes.push({id: null, ts: yesterdayPlusAMin});
+      expect(smokes.nowYesterday()).toEqual(1);
     });
 
     it('knows how yesterday compares to the day before', function() {
-      var now = new Date();
-      var yesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 1);
-      var dayBefore = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 2);
-      yesterday = yesterday.getTime();
-      dayBefore = dayBefore.getTime();
+      // Cheater. Using one method of Log to test another. It works but no points for purity.
+      var yesterday = Times.yesterdayX();
+      var dayBefore = Times.dayBeforeX(yesterday);
 
-      logdata.log[yesterday] = [yesterday, yesterday, yesterday];
-      logdata.log[dayBefore] = [dayBefore, dayBefore];
+      logdata.smokes.push({id: null, ts: yesterday});
+      logdata.smokes.push({id: null, ts: yesterday});
+      logdata.smokes.push({id: null, ts: yesterday});
+      logdata.smokes.push({id: null, ts: dayBefore});
+      logdata.smokes.push({id: null, ts: dayBefore});
 
-      expect(log.yesterday()).toBeGreaterThan(log.dayBeforeYesterday()); 
+      expect(smokes.yesterday()).toBeGreaterThan(smokes.dayBeforeYesterday()); 
 
-      logdata.log[dayBefore].push(dayBefore);
-      logdata.log[dayBefore].push(dayBefore);
+      logdata.smokes.push({id: null, ts: dayBefore});
+      logdata.smokes.push({id: null, ts: dayBefore});
        
-      expect(log.yesterday()).toBeLessThan(log.dayBeforeYesterday()); 
+      expect(smokes.yesterday()).toBeLessThan(smokes.dayBeforeYesterday()); 
     });
 
     it('is persisted when incremented',function() {
       // Cheater. Using one method of Log to test another. It works but no points for purity.
-      var savedLog, afterLog;
+      var preLog, postLog;
       
-      log.hadOne()
-      savedLog = JSON.parse(localStorage["logData"]);
-      
-      afterLog = App.log(savedLog);
-      expect(afterLog.soFarToday()).toEqual(1);
+      // verify it's empty
+      //preLog = JSON.parse(localStorage["logData"]);
+      expect(localStorage["logData"]).toBeUndefined;
+      //expect(preLog.smokes.length).toEqual(0);
+
+      // increment
+      smokes.hadOne()
+
+      // fetch and verifty it matches
+      postLog = JSON.parse(localStorage["logData"]);
+      expect(postLog.smokes.length).toEqual(1); 
     })
   });
 

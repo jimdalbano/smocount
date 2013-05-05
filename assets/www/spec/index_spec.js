@@ -26,28 +26,27 @@ describe('app', function() {
       });
 
       it('maintains color for yesterday', function() {
+        var yesterday = Times.yesterdayX();
+        var dayBefore = Times.dayBeforeX(yesterday);
+
         var logdata = App.logData(), 
             now = new Date(), 
-            yesterdayClass,
-            yesterday = App.yesterday();
+            yesterdayClass;
 
-        var dayBeforeYesterday = new Date(now.getYear(), now.getMonth() + 1, now.getDate() - 2);
-        dayBeforeYesterday = dayBeforeYesterday.getTime();
-        
-        logdata.log[yesterday] = [1, 1, 1];
-        logdata.log[dayBeforeYesterday] = [1, 1, 1, 1];
+        logdata.smokes.push({id: null, ts: yesterday});
+        logdata.smokes.push({id: null, ts: dayBefore});
+        logdata.smokes.push({id: null, ts: dayBefore});
 
         App.updateUI(App.log(logdata));
         yesterdayClass =  $('#yesterday-container')[0].classList;
 
         expect(yesterdayClass.contains('green')).toBe(true);
 
-        logdata.log[yesterday].push(1);
-        logdata.log[yesterday].push(1);
+        logdata.smokes.push({id: null, ts: yesterday});
+        logdata.smokes.push({id: null, ts: yesterday});
 
         var lg = App.log(logdata);
         App.updateUI(lg);
-        //App.updateUI(App.log(logdata));
         yesterdayClass =  $('#yesterday-container')[0].classList;
 
         expect(yesterdayClass.contains('green')).toBe(false);
